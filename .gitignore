@@ -1,0 +1,5 @@
+node_modules/
+build/
+secret.json
+migrations
+yarn.lock
