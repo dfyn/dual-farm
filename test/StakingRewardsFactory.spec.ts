@@ -39,30 +39,30 @@ describe('StakingRewardsFactory', () => {
 
   it('deployment gas', async () => {
     const receipt = await provider.getTransactionReceipt(stakingRewardsFactory.deployTransaction.hash)
-    expect(receipt.gasUsed).to.eq('4492894')
+    expect(receipt.gasUsed).to.eq('4488818')
   })
 
   describe('#deploy', () => {
     it('pushes the token into the list', async () => {
-      await stakingRewardsFactory.deploy(stakingTokens[1].address, rewardsTokensAddresses, rewardAmounts, false)
+      await stakingRewardsFactory.deploy(stakingTokens[1].address, rewardsTokensAddresses, rewardAmounts)
       expect(await stakingRewardsFactory.stakingTokens(0)).to.eq(stakingTokens[1].address)
     })
 
     it('fails if called twice for same token', async () => {
-      await stakingRewardsFactory.deploy(stakingTokens[1].address, rewardsTokensAddresses, rewardAmounts, false)
-      await expect(stakingRewardsFactory.deploy(stakingTokens[1].address, rewardsTokensAddresses, rewardAmounts, false)).to.revertedWith(
+      await stakingRewardsFactory.deploy(stakingTokens[1].address, rewardsTokensAddresses, rewardAmounts)
+      await expect(stakingRewardsFactory.deploy(stakingTokens[1].address, rewardsTokensAddresses, rewardAmounts)).to.revertedWith(
         'StakingRewardsFactory::deploy: already deployed'
       )
     })
 
     it('can only be called by the owner', async () => {
-      await expect(stakingRewardsFactory.connect(wallet1).deploy(stakingTokens[1].address, rewardsTokensAddresses, rewardAmounts, false)).to.be.revertedWith(
+      await expect(stakingRewardsFactory.connect(wallet1).deploy(stakingTokens[1].address, rewardsTokensAddresses, rewardAmounts)).to.be.revertedWith(
         'Ownable: caller is not the owner'
       )
     })
 
     it('stores the address of stakingRewards and reward amount', async () => {
-      await stakingRewardsFactory.deploy(stakingTokens[1].address, rewardsTokensAddresses, rewardAmounts, false)
+      await stakingRewardsFactory.deploy(stakingTokens[1].address, rewardsTokensAddresses, rewardAmounts)
       const [stakingRewards, test, rewardAmount] = await stakingRewardsFactory.stakingRewardsInfo(
         stakingTokens[1].address
       )
@@ -72,7 +72,7 @@ describe('StakingRewardsFactory', () => {
     })
 
     it('deployed staking rewards has correct parameters', async () => {
-      await stakingRewardsFactory.deploy(stakingTokens[1].address, rewardsTokensAddresses, rewardAmounts, false)
+      await stakingRewardsFactory.deploy(stakingTokens[1].address, rewardsTokensAddresses, rewardAmounts)
       const [stakingRewardsAddress, rewardsTokensArray, [rewardAmount]] = await stakingRewardsFactory.stakingRewardsInfo(
         stakingTokens[1].address
       )
@@ -113,7 +113,7 @@ describe('StakingRewardsFactory', () => {
       beforeEach('deploy staking reward contracts', async () => {
         stakingRewards = []
         for (let i = 0; i < stakingTokens.length; i++) {
-          await stakingRewardsFactory.deploy(stakingTokens[i].address, rewardsTokensAddresses, rewardAmounts, false)
+          await stakingRewardsFactory.deploy(stakingTokens[i].address, rewardsTokensAddresses, rewardAmounts)
           const stakingRewardsAddress = await stakingRewardsFactory.stakingRewardsInfoByStakingToken(
             stakingTokens[i].address
           )
