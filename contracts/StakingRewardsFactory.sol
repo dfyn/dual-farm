@@ -45,25 +45,23 @@ contract StakingRewardsFactory is Ownable {
     function deploy(
         address stakingToken,
         address[] memory rewardTokens,
-        uint256[] memory rewardAmounts,
-        bool update
+        uint256[] memory rewardAmounts
     ) public onlyOwner {
         StakingRewardsInfo storage info =
             stakingRewardsInfoByStakingToken[stakingToken];
         require(
-            info.stakingRewards == address(0) || update,
+            info.stakingRewards == address(0),
             "StakingRewardsFactory::deploy: already deployed"
         );
-        if (!update) {
-            info.stakingRewards = address(
-                new StakingRewards(
-                    /*_rewardsDistribution=*/
-                    address(this),
-                    rewardTokens,
-                    stakingToken
-                )
-            );
-        }
+        info.stakingRewards = address(
+            new StakingRewards(
+                /*_rewardsDistribution=*/
+                address(this),
+                rewardTokens,
+                stakingToken
+            )
+        );
+
         for (uint8 i = 0; i < rewardTokens.length; i++) {
             require(
                 rewardAmounts[i] > 0,

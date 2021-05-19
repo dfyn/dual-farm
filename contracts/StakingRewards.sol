@@ -2,17 +2,22 @@
 
 pragma solidity >=0.6.11;
 
-import '@openzeppelin/contracts/math/Math.sol';
-import '@openzeppelin/contracts/math/SafeMath.sol';
-import '@openzeppelin/contracts/token/ERC20/SafeERC20.sol';
-import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
-import './libraries/NativeMetaTransaction/NativeMetaTransaction.sol';
+import "@openzeppelin/contracts/math/Math.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "./libraries/NativeMetaTransaction/NativeMetaTransaction.sol";
 
 // Inheritance
-import './interfaces/IStakingRewards.sol';
-import './RewardsDistributionRecipient.sol';
+import "./interfaces/IStakingRewards.sol";
+import "./RewardsDistributionRecipient.sol";
 
-contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, ReentrancyGuard, NativeMetaTransaction {
+contract StakingRewards is
+    IStakingRewards,
+    RewardsDistributionRecipient,
+    ReentrancyGuard,
+    NativeMetaTransaction
+{
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -30,13 +35,9 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
     mapping(address => uint256) public tokenRewardRate;
     mapping(address => uint256) private _balances;
     mapping(address => uint256) public rewardLastUpdatedTime;
-    mapping(address => mapping(address => uint256)) public userRewardPerTokenPaid;
+    mapping(address => mapping(address => uint256))
+        public userRewardPerTokenPaid;
     mapping(address => mapping(address => uint256)) public rewards;
-
-    struct RewardView {
-        uint256 rewardAmount;
-        address rewardToken;
-    }
 
     /* ========== CONSTRUCTOR ========== */
 
@@ -49,7 +50,7 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         stakingToken = IERC20(_stakingToken);
         rewardsDistribution = _rewardsDistribution;
 
-        _initializeEIP712('DualFarmsV1');
+        _initializeEIP712("DualFarmsV1");
     }
 
     /* ========== VIEWS ========== */
@@ -58,11 +59,20 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         return _totalSupply;
     }
 
-    function balanceOf(address account) external view override returns (uint256) {
+    function balanceOf(address account)
+        external
+        view
+        override
+        returns (uint256)
+    {
         return _balances[account];
     }
 
-    function stakerBalances() external view returns (address[] memory, uint256[] memory) {
+    function stakerBalances()
+        external
+        view
+        returns (address[] memory, uint256[] memory)
+    {
         uint256 stakerCount = stakers.length;
         uint256[] memory balances = new uint256[](stakerCount);
         for (uint256 i = 0; i < stakers.length; i++) {
@@ -75,7 +85,12 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         return Math.min(block.timestamp, periodFinish);
     }
 
-    function rewardPerToken(address rewardToken) public view override returns (uint256) {
+    function rewardPerToken(address rewardToken)
+        public
+        view
+        override
+        returns (uint256)
+    {
         if (_totalSupply == 0) {
             return rewardsPerTokenMap[rewardToken];
         }
@@ -89,15 +104,29 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
             );
     }
 
-    function earned(address account, address rewardToken) public view override returns (uint256) {
+    function earned(address account, address rewardToken)
+        public
+        view
+        override
+        returns (uint256)
+    {
         return
             _balances[account]
-                .mul(rewardPerToken(rewardToken).sub(userRewardPerTokenPaid[account][rewardToken]))
+                .mul(
+                rewardPerToken(rewardToken).sub(
+                    userRewardPerTokenPaid[account][rewardToken]
+                )
+            )
                 .div(1e18)
                 .add(rewards[account][rewardToken]);
     }
 
-    function getRewardForDuration(address rewardToken) external view override returns (uint256) {
+    function getRewardForDuration(address rewardToken)
+        external
+        view
+        override
+        returns (uint256)
+    {
         return tokenRewardRate[rewardToken].mul(rewardsDuration);
     }
 
@@ -110,19 +139,32 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         bytes32 r,
         bytes32 s
     ) external nonReentrant updateReward(_msgSender()) {
-        require(amount > 0, 'Cannot stake 0');
+        require(amount > 0, "Cannot stake 0");
         _totalSupply = _totalSupply.add(amount);
         _balances[_msgSender()] = _balances[_msgSender()].add(amount);
 
         // permit
-        IEllipticRC20(address(stakingToken)).permit(_msgSender(), address(this), amount, deadline, v, r, s);
+        IEllipticRC20(address(stakingToken)).permit(
+            _msgSender(),
+            address(this),
+            amount,
+            deadline,
+            v,
+            r,
+            s
+        );
 
         stakingToken.safeTransferFrom(_msgSender(), address(this), amount);
         emit Staked(_msgSender(), amount);
     }
 
-    function stake(uint256 amount) external override nonReentrant updateReward(_msgSender()) {
-        require(amount > 0, 'Cannot stake 0');
+    function stake(uint256 amount)
+        external
+        override
+        nonReentrant
+        updateReward(_msgSender())
+    {
+        require(amount > 0, "Cannot stake 0");
         _totalSupply = _totalSupply.add(amount);
         if (_balances[_msgSender()] == 0) {
             stakers.push(_msgSender());
@@ -132,15 +174,25 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         emit Staked(_msgSender(), amount);
     }
 
-    function withdraw(uint256 amount) public override nonReentrant updateReward(_msgSender()) {
-        require(amount > 0, 'Cannot withdraw 0');
+    function withdraw(uint256 amount)
+        public
+        override
+        nonReentrant
+        updateReward(_msgSender())
+    {
+        require(amount > 0, "Cannot withdraw 0");
         _totalSupply = _totalSupply.sub(amount);
         _balances[_msgSender()] = _balances[_msgSender()].sub(amount);
         stakingToken.safeTransfer(_msgSender(), amount);
         emit Withdrawn(_msgSender(), amount);
     }
 
-    function getReward() public override nonReentrant updateReward(_msgSender()) {
+    function getReward()
+        public
+        override
+        nonReentrant
+        updateReward(_msgSender())
+    {
         for (uint256 i = 0; i < rewardTokens.length; i++) {
             uint256 reward = rewards[_msgSender()][rewardTokens[i]];
             if (reward > 0) {
@@ -179,27 +231,46 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         // very high values of rewardRate in the earned and rewardsPerToken functions;
         // Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
         uint256 balance = IERC20(rewardToken).balanceOf(address(this));
-        require(rewardRate <= balance.div(periodFinish.sub(block.timestamp)), 'Provided reward too high');
+        require(
+            rewardRate <= balance.div(periodFinish.sub(block.timestamp)),
+            "Provided reward too high"
+        );
 
         rewardLastUpdatedTime[rewardToken] = block.timestamp;
         tokenRewardRate[rewardToken] = rewardRate;
         emit RewardAdded(reward);
     }
 
-    function rescueFunds(address tokenAddress, address receiver) external onlyRewardsDistribution {
-        require(tokenAddress != address(stakingToken), 'StakingRewards: rescue of staking token not allowed');
-        IERC20(tokenAddress).transfer(receiver, IERC20(tokenAddress).balanceOf(address(this)));
+    function rescueFunds(address tokenAddress, address receiver)
+        external
+        onlyRewardsDistribution
+    {
+        require(
+            tokenAddress != address(stakingToken),
+            "StakingRewards: rescue of staking token not allowed"
+        );
+        IERC20(tokenAddress).transfer(
+            receiver,
+            IERC20(tokenAddress).balanceOf(address(this))
+        );
     }
 
     /* ========== MODIFIERS ========== */
 
     modifier updateReward(address account) {
         for (uint256 i = 0; i < rewardTokens.length; i++) {
-            rewardsPerTokenMap[rewardTokens[i]] = rewardPerToken(rewardTokens[i]);
+            rewardsPerTokenMap[rewardTokens[i]] = rewardPerToken(
+                rewardTokens[i]
+            );
             rewardLastUpdatedTime[rewardTokens[i]] = lastTimeRewardApplicable();
             if (account != address(0)) {
-                rewards[account][rewardTokens[i]] = earned(account, rewardTokens[i]);
-                userRewardPerTokenPaid[account][rewardTokens[i]] = rewardsPerTokenMap[rewardTokens[i]];
+                rewards[account][rewardTokens[i]] = earned(
+                    account,
+                    rewardTokens[i]
+                );
+                userRewardPerTokenPaid[account][
+                    rewardTokens[i]
+                ] = rewardsPerTokenMap[rewardTokens[i]];
             }
         }
         _;
