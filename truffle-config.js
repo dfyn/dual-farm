@@ -51,7 +51,7 @@ module.exports = {
 	derivationPath:`m/44'/60'/0'/0/0/`,
         providerOrUrl: `https://rpc-mainnet.maticvigil.com/v1/1fcb1711b433804cea13ef670b1a5245c27562a6`
       }),*/
-      provider: () => new HDWalletProvider(mnemonic, `https://rpc-mainnet.maticvigil.com/v1/1fcb1711b433804cea13ef670b1a5245c27562a6`, 1, 2000),
+      provider: () => new HDWalletProvider(mnemonic, `https://rpc-mainnet.maticvigil.com/v1/1fcb1711b433804cea13ef670b1a5245c27562a6`),
       network_id: 137,
       confirmations: 2,
       timeoutBlocks: 200,

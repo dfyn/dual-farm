@@ -121,6 +121,32 @@ contract StakingRewards is
                 .add(rewards[account][rewardToken]);
     }
 
+    function bothTokensEarned(address account)
+        public
+        view
+        returns (address[] memory, uint256[] memory)
+    {
+        uint256 _length = rewardTokens.length;
+        uint256[] memory _totalEarnedAmount = new uint256[](_length);
+        for (uint256 i = 0; i < _length; i++) {
+            _totalEarnedAmount[i] = earned(account, rewardTokens[i]);
+        }
+        return (rewardTokens, _totalEarnedAmount);
+    }
+
+    function bothTokensRewardRate()
+        public
+        view
+        returns (address[] memory, uint256[] memory)
+    {
+        uint256 _length = rewardTokens.length;
+        uint256[] memory _rewardRates = new uint256[](_length);
+        for (uint256 i = 0; i < _length; i++) {
+            _rewardRates[i] = tokenRewardRate[rewardTokens[i]];
+        }
+        return (rewardTokens, _rewardRates);
+    }
+
     function getRewardForDuration(address rewardToken)
         external
         view
