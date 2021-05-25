@@ -25,7 +25,7 @@ contract StakingRewards is
 
     IERC20 public stakingToken;
     uint256 public periodFinish = 0;
-    uint256 public rewardsDuration = 30 days;
+    uint256 public rewardsDuration = 60 days;
     uint256 public rewardPerTokenStored;
     uint256 private _totalSupply;
     address[] private stakers;

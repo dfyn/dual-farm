@@ -27,9 +27,6 @@ contract StakingRewardsFactory is Ownable {
     mapping(address => StakingRewardsInfo)
         public stakingRewardsInfoByStakingToken;
 
-    // rewards info by staking token
-    mapping(address => uint256) public rewardTokenQuantities;
-
     constructor(uint256 _stakingRewardsGenesis) public Ownable() {
         require(
             _stakingRewardsGenesis >= block.timestamp,
@@ -70,7 +67,6 @@ contract StakingRewardsFactory is Ownable {
             info.poolRewardToken.push(rewardTokens[i]);
             info.poolRewardAmount.push(rewardAmounts[i]);
 
-            rewardTokenQuantities[rewardTokens[i]] = rewardAmounts[i];
         }
         stakingTokens.push(stakingToken);
     }
