@@ -1202,7 +1202,7 @@ contract StakingRewards is
 
     IERC20 public stakingToken;
     uint256 public periodFinish = 0;
-    uint256 public rewardsDuration = 30 days;
+    uint256 public rewardsDuration = 60 days;
     uint256 public rewardPerTokenStored;
     uint256 private _totalSupply;
     address[] private stakers;
@@ -1524,9 +1524,6 @@ contract StakingRewardsFactory is Ownable {
     mapping(address => StakingRewardsInfo)
         public stakingRewardsInfoByStakingToken;
 
-    // rewards info by staking token
-    mapping(address => uint256) public rewardTokenQuantities;
-
     constructor(uint256 _stakingRewardsGenesis) public Ownable() {
         require(
             _stakingRewardsGenesis >= block.timestamp,
@@ -1566,8 +1563,6 @@ contract StakingRewardsFactory is Ownable {
             );
             info.poolRewardToken.push(rewardTokens[i]);
             info.poolRewardAmount.push(rewardAmounts[i]);
-
-            rewardTokenQuantities[rewardTokens[i]] = rewardAmounts[i];
         }
         stakingTokens.push(stakingToken);
     }
