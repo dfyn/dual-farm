@@ -87,8 +87,8 @@ export async function stakingRewardsFactoryFixture(
   [wallet]: Wallet[],
   provider: providers.Web3Provider
 ): Promise<StakingRewardsFactoryFixture> {
-  const rewardsTokenOne = await deployContract(wallet, TestERC20, [expandTo18Decimals(1000000)])
-  const rewardsTokenTwo = await deployContract(wallet, TestERC20, [expandTo18Decimals(1000000)])
+  const rewardsTokenOne = await deployContract(wallet, TestERC20, [expandTo18Decimals(1_000_000_000)])
+  const rewardsTokenTwo = await deployContract(wallet, TestERC20, [expandTo18Decimals(1_000_000_000)])
 
   const rewardsTokens = [rewardsTokenOne, rewardsTokenTwo];
   // deploy staking tokens
