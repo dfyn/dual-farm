@@ -249,7 +249,8 @@ contract StakingRewards is
         } else {
             uint256 remaining = periodFinish.sub(block.timestamp);
             uint256 leftover = remaining.mul(rewardRate);
-            rewardRate = reward.add(leftover).div(remaining);
+            rewardRate = reward.add(leftover).div(rewardsDuration);
+            periodFinish = block.timestamp.add(rewardsDuration);
         }
 
         // Ensure the provided reward amount is not more than the balance in the contract.
